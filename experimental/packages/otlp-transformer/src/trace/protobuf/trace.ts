@@ -21,6 +21,7 @@ import { IExportTraceServiceRequest } from '../internal-types';
 import { ReadableSpan } from '@opentelemetry/sdk-trace-base';
 import { createExportTraceServiceRequest } from '../internal';
 import { IExportTraceServiceResponse } from '../export-response';
+import { serializeTraceExportRequest } from './trace-serializer';
 
 const traceResponseType = root.opentelemetry.proto.collector.trace.v1
   .ExportTraceServiceResponse as ExportType<IExportTraceServiceResponse>;
@@ -33,8 +34,14 @@ export const ProtobufTraceSerializer: ISerializer<
   IExportTraceServiceResponse
 > = {
   serializeRequest: (arg: ReadableSpan[]) => {
-    const request = createExportTraceServiceRequest(arg);
-    return traceRequestType.encode(request).finish();
+    // TODO(trentm): remove this
+    const HACK_CUSTOM_TRACE_EXPORTER = true;
+    if (HACK_CUSTOM_TRACE_EXPORTER) {
+      return serializeTraceExportRequest(arg);
+    } else {
+      const request = createExportTraceServiceRequest(arg);
+      return traceRequestType.encode(request).finish();
+    }
   },
   deserializeResponse: (arg: Uint8Array) => {
     return traceResponseType.decode(arg);
