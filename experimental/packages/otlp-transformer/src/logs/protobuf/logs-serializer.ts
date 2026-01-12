@@ -182,9 +182,11 @@ function serializeResourceLogs(
 
   // scope_logs (field 2, repeated ScopeLogs)
   for (const scopeLogs of scopeMap.values()) {
-    writer.writeTag(2, 2);
-    const scope = scopeLogs[0].instrumentationScope;
-    serializeScopeLogs(writer, scope, scopeLogs);
+    if (scopeLogs.length > 0) {
+      writer.writeTag(2, 2);
+      const scope = scopeLogs[0].instrumentationScope;
+      serializeScopeLogs(writer, scope, scopeLogs);
+    }
   }
 
   // schema_url (field 3, string) - skip if empty
@@ -231,14 +233,43 @@ function createResourceMap(
   return resourceMap;
 }
 
+// Used for HACK_REUSE_WRITER below.
+const gWriter = new ProtobufWriter();
+
+// These are used for HACK_REUSE_SERIALIZED_VAL below.
+// TODO(trentm): remove this
+const smallLogsServiceRequestBase64 =
+  'Cq8GCqwGChoKCWhvc3QubmFtZRINCgtwZWFjaC5sb2NhbAoUCglob3N0LmFyY2gSBwoFYXJtNjQKMQoHaG9zdC5pZBImCiQ4RkVCQkMzMy1ENkRBLTU3RkMtOEVGMC0xQTlDMTRCOTE5RjgKEwoLcHJvY2Vzcy5waWQSBBiWxgQKIQoXcHJvY2Vzcy5leGVjdXRhYmxlLm5hbWUSBgoEbm9kZQpPChdwcm9jZXNzLmV4ZWN1dGFibGUucGF0aBI0CjIvVXNlcnMvdHJlbnRtLy5udm0vdmVyc2lvbnMvbm9kZS92MjAuMTkuMS9iaW4vbm9kZQrFAQoUcHJvY2Vzcy5jb21tYW5kX2FyZ3MSrAEqqQEKNAoyL1VzZXJzL3RyZW50bS8ubnZtL3ZlcnNpb25zL25vZGUvdjIwLjE5LjEvYmluL25vZGUKCgoILS1pbXBvcnQKJgokLi90ZWxlbWV0cnktb2otY3VzdG9tLXNlcmlhbGl6ZXIubWpzCj0KOy9Vc2Vycy90cmVudG0vZWwvYXBtLW5vZGVqcy1kZXYvZWRvdC1iZW5jaC9hcHAtaHR0cC1waW5vLmpzCiQKF3Byb2Nlc3MucnVudGltZS52ZXJzaW9uEgkKBzIwLjE5LjEKIAoUcHJvY2Vzcy5ydW50aW1lLm5hbWUSCAoGbm9kZWpzCigKG3Byb2Nlc3MucnVudGltZS5kZXNjcmlwdGlvbhIJCgdOb2RlLmpzClAKD3Byb2Nlc3MuY29tbWFuZBI9CjsvVXNlcnMvdHJlbnRtL2VsL2FwbS1ub2RlanMtZGV2L2Vkb3QtYmVuY2gvYXBwLWh0dHAtcGluby5qcwoZCg1wcm9jZXNzLm93bmVyEggKBnRyZW50bQomCgxzZXJ2aWNlLm5hbWUSFgoUdW5rbm93bl9zZXJ2aWNlOm5vZGUKIgoWdGVsZW1ldHJ5LnNkay5sYW5ndWFnZRIICgZub2RlanMKJQoSdGVsZW1ldHJ5LnNkay5uYW1lEg8KDW9wZW50ZWxlbWV0cnkKIAoVdGVsZW1ldHJ5LnNkay52ZXJzaW9uEgcKBTIuMi4wEAA=';
+const smallLogsServiceRequest = new Uint8Array(
+  Buffer.from(smallLogsServiceRequestBase64, 'base64')
+);
+
 /**
  * Serialize ExportLogsServiceRequest directly from ReadableLogRecord[]
  */
 export function serializeLogsExportRequest(
   logRecords: ReadableLogRecord[]
 ): Uint8Array {
+  // Hack doing no (minimal) work, and return a smallish
+  // ExportLogsServiceRequest with no log records.
+  const HACK_REUSE_SERIALIZED_VAL = false;
+  if (HACK_REUSE_SERIALIZED_VAL) {
+    return smallLogsServiceRequest;
+  }
+
   const resourceMap = createResourceMap(logRecords);
-  const writer = new ProtobufWriter();
+
+  // Hack to re-use the writer instance (and hence the buffer used for
+  // serializing), as a possible perf improvement.
+  // TODO(trentm): remove or keep this?
+  const HACK_REUSE_WRITER = false;
+  let writer;
+  if (HACK_REUSE_WRITER) {
+    writer = gWriter;
+    writer.reset();
+  } else {
+    writer = new ProtobufWriter();
+  }
 
   // resource_logs (field 1, repeated ResourceLogs)
   for (const [resource, scopeMap] of resourceMap) {

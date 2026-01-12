@@ -30,6 +30,10 @@ export class ProtobufWriter {
     this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset);
   }
 
+  reset() {
+    this.pos = 0;
+  }
+
   /**
    * Ensure buffer has capacity for at least size more bytes
    */
@@ -57,6 +61,7 @@ export class ProtobufWriter {
    */
   finish(): Uint8Array {
     return this._buffer.subarray(0, this.pos);
+    // TODO(trentm) could reset pos here, rather than having a .reset() method
   }
 
   /**
