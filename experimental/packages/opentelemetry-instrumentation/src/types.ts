@@ -15,7 +15,7 @@
  */
 
 import { TracerProvider, MeterProvider, Span } from '@opentelemetry/api';
-import { LoggerProvider } from '@opentelemetry/api-logs';
+import type { LoggerProvider } from '@opentelemetry/api-logs';
 
 /** Interface Instrumentation to apply patch. */
 export interface Instrumentation<

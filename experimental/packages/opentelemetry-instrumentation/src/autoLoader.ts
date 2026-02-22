@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import { trace, metrics } from '@opentelemetry/api';
-import { logs } from '@opentelemetry/api-logs';
+import { trace } from '@opentelemetry/api';
+import { metrics } from '@opentelemetry/api';
+//import { logs } from '@opentelemetry/api-logs';
 import {
   disableInstrumentations,
   enableInstrumentations,
@@ -33,14 +34,12 @@ export function registerInstrumentations(
 ): () => void {
   const tracerProvider = options.tracerProvider || trace.getTracerProvider();
   const meterProvider = options.meterProvider || metrics.getMeterProvider();
-  const loggerProvider = options.loggerProvider || logs.getLoggerProvider();
   const instrumentations = options.instrumentations?.flat() ?? [];
 
   enableInstrumentations(
     instrumentations,
     tracerProvider,
     meterProvider,
-    loggerProvider
   );
 
   return () => {

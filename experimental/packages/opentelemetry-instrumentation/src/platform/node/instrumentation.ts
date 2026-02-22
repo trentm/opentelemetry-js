@@ -24,8 +24,8 @@ import {
   RequireInTheMiddleSingleton,
   Hooked,
 } from './RequireInTheMiddleSingleton';
-import type { HookFn } from 'import-in-the-middle';
-import { Hook as HookImport } from 'import-in-the-middle';
+// import type { HookFn } from 'import-in-the-middle';
+//import { Hook as HookImport } from 'import-in-the-middle';
 import {
   InstrumentationConfig,
   InstrumentationModuleDefinition,
@@ -286,6 +286,7 @@ export abstract class InstrumentationBase<
 
     this._warnOnPreloadedModules();
     for (const module of this._modules) {
+      /*XXX
       const hookFn: HookFn = (exports, name, baseDir) => {
         if (!baseDir && path.isAbsolute(name)) {
           // Change IITM `name` and `baseDir` values to match what RITM returns.
@@ -297,6 +298,7 @@ export abstract class InstrumentationBase<
         }
         return this._onRequire<typeof exports>(module, exports, name, baseDir);
       };
+      */
       const onRequire: OnRequireFn = (exports, name, baseDir) => {
         return this._onRequire<typeof exports>(module, exports, name, baseDir);
       };
@@ -309,12 +311,14 @@ export abstract class InstrumentationBase<
         : this._requireInTheMiddleSingleton.register(module.name, onRequire);
 
       this._hooks.push(hook);
+      /*XXX
       const esmHook = new HookImport(
         [module.name],
         { internals: true },
         <HookFn>hookFn
       );
       this._hooks.push(esmHook);
+      */
     }
   }
 

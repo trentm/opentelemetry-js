@@ -25,7 +25,6 @@ import {
   TracerProvider,
   Span,
 } from '@opentelemetry/api';
-import { Logger, LoggerProvider, logs } from '@opentelemetry/api-logs';
 import * as shimmer from './shimmer';
 import {
   InstrumentationModuleDefinition,
@@ -45,7 +44,6 @@ export abstract class InstrumentationAbstract<
 
   private _tracer: Tracer;
   private _meter: Meter;
-  private _logger: Logger;
   protected _diag: DiagLogger;
   public readonly instrumentationName: string;
   public readonly instrumentationVersion: string;
@@ -66,7 +64,6 @@ export abstract class InstrumentationAbstract<
 
     this._tracer = trace.getTracer(instrumentationName, instrumentationVersion);
     this._meter = metrics.getMeter(instrumentationName, instrumentationVersion);
-    this._logger = logs.getLogger(instrumentationName, instrumentationVersion);
     this._updateMetricInstruments();
   }
 
@@ -97,21 +94,18 @@ export abstract class InstrumentationAbstract<
     this._updateMetricInstruments();
   }
 
-  /* Returns logger */
-  protected get logger(): Logger {
-    return this._logger;
-  }
-
   /**
    * Sets LoggerProvider to this plugin
    * @param loggerProvider
    */
+  /*XXX
   public setLoggerProvider(loggerProvider: LoggerProvider): void {
     this._logger = loggerProvider.getLogger(
       this.instrumentationName,
       this.instrumentationVersion
     );
   }
+  */
 
   /**
    * @experimental

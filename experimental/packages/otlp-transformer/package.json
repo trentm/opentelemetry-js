@@ -13,7 +13,6 @@
   "repository": "open-telemetry/opentelemetry-js",
   "scripts": {
     "prepublishOnly": "npm run compile",
-    "precompile": "npm run protos",
     "compile": "tsc --build tsconfig.json tsconfig.esm.json tsconfig.esnext.json",
     "clean": "tsc --build --clean tsconfig.json tsconfig.esm.json tsconfig.esnext.json",
     "protos": "npm run submodule && npm run protos:generate",
@@ -64,6 +63,9 @@
   },
   "devDependencies": {
     "@opentelemetry/api": "1.9.0",
+    "@opentelemetry/sdk-logs": "0.212.0",
+    "@opentelemetry/sdk-metrics": "2.5.1",
+    "@opentelemetry/sdk-trace-base": "2.5.1",
     "@types/mocha": "10.0.10",
     "@types/webpack-env": "1.16.3",
     "babel-plugin-istanbul": "7.0.1",
@@ -81,12 +83,8 @@
     "webpack": "5.104.1"
   },
   "dependencies": {
-    "@opentelemetry/api-logs": "0.212.0",
     "@opentelemetry/core": "2.5.1",
     "@opentelemetry/resources": "2.5.1",
-    "@opentelemetry/sdk-logs": "0.212.0",
-    "@opentelemetry/sdk-metrics": "2.5.1",
-    "@opentelemetry/sdk-trace-base": "2.5.1",
     "protobufjs": "^7.0.0"
   },
   "homepage": "https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/otlp-transformer",
