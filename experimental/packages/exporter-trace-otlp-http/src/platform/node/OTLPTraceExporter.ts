@@ -18,12 +18,10 @@ import { ReadableSpan, SpanExporter } from '@opentelemetry/sdk-trace-base';
 import {
   OTLPExporterNodeConfigBase,
   OTLPExporterBase,
-} from '@opentelemetry/otlp-exporter-base';
-import { JsonTraceSerializer } from '@opentelemetry/otlp-transformer';
-import {
   convertLegacyHttpOptions,
   createOtlpHttpExportDelegate,
-} from '@opentelemetry/otlp-exporter-base/node-http';
+} from '@opentelemetry/otlp-exporter-base';
+import { JsonTraceSerializer } from '@opentelemetry/otlp-transformer';
 
 /**
  * Collector Trace Exporter for Node
