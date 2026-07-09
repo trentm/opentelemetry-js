@@ -5,7 +5,7 @@
   "description": "Example of configuring the Node SDK from a YAML file via OTEL_CONFIG_FILE + startNodeSDK()",
   "main": "index.ts",
   "scripts": {
-    "start": "OTEL_CONFIG_FILE=./otel-config.yaml ts-node index.ts",
+    "start": "OTEL_CONFIG_FILE=./otel-config.yaml tsx --import ./telemetry.ts index.ts",
     "align-api-deps": "node ../../../scripts/align-api-deps.js"
   },
   "author": "OpenTelemetry Authors",
@@ -17,7 +17,6 @@
     "@opentelemetry/sdk-node": "0.219.0"
   },
   "devDependencies": {
-    "@types/node": "18.19.130",
-    "ts-node": "^10.9.1"
+    "tsx": "^4.23.0"
   }
 }

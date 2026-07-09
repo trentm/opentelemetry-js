@@ -5,12 +5,6 @@
 
 import { trace, metrics } from '@opentelemetry/api';
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
-import { startNodeSDK } from '@opentelemetry/sdk-node';
-
-// `startNodeSDK()` reads OTEL_CONFIG_FILE (set in package.json's start script)
-// and wires up trace, metric, and log pipelines from the YAML. No programmatic
-// provider construction needed.
-const sdk = startNodeSDK();
 
 const tracer = trace.getTracer('example');
 const meter = metrics.getMeter('example');
@@ -31,8 +25,6 @@ async function main(): Promise<void> {
     });
     span.end();
   });
-
-  await sdk.shutdown();
 }
 
 main().catch(err => {
