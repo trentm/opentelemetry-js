@@ -32,6 +32,16 @@ export type {
   OtlpHttpExporter as OtlpHttpExporterConfigModel,
   OtlpGrpcExporter as OtlpGrpcExporterConfigModel,
   LogRecordLimits as LogRecordLimitsConfigModel,
+  ExperimentalInstrumentation as ExperimentalInstrumentationConfigModel,
+  ExperimentalLanguageSpecificInstrumentation as ExperimentalLanguageSpecificInstrumentationConfigModel,
+  ExperimentalGeneralInstrumentation as ExperimentalGeneralInstrumentationConfigModel,
+  ExperimentalHttpInstrumentation as ExperimentalHttpInstrumentationConfigModel,
+  ExperimentalCodeInstrumentation as ExperimentalCodeInstrumentationConfigModel,
+  ExperimentalDbInstrumentation as ExperimentalDbInstrumentationConfigModel,
+  ExperimentalGenAiInstrumentation as ExperimentalGenAiInstrumentationConfigModel,
+  ExperimentalMessagingInstrumentation as ExperimentalMessagingInstrumentationConfigModel,
+  ExperimentalRpcInstrumentation as ExperimentalRpcInstrumentationConfigModel,
+  ExperimentalSanitization as ExperimentalSanitizationConfigModel,
 } from './generated/types';
 export { createConfigFactory } from './ConfigFactory';
 export { createConfigProvider } from './SdkConfigProvider';

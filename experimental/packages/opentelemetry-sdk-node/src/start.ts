@@ -11,7 +11,6 @@ import {
   createConfigProvider,
 } from '@opentelemetry/configuration';
 import { config as configApi } from '@opentelemetry/api-config';
-import type { ConfigProvider } from '@opentelemetry/api-config';
 import {
   context,
   diag,
@@ -33,7 +32,6 @@ import {
   getSpanProcessorsFromConfiguration,
 } from './utils';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
-import type { Instrumentation } from '@opentelemetry/instrumentation';
 import type { SDKComponents, SDKOptions } from './types';
 import { MeterProvider } from '@opentelemetry/sdk-metrics';
 import { TracerProvider } from '@opentelemetry/sdk-trace';
@@ -86,14 +84,6 @@ export function startNodeSDK(sdkOptions?: SDKOptions): {
   const logLevel = diagLogLevelFromSeverityNumberConfig(config.log_level);
   diag.setLogger(new DiagConsoleLogger(), { logLevel });
 
-  // Register the global ConfigProvider before constructing instrumentations, so
-  // each one reads its declarative config in its constructor.
-  const configProvider = createConfigProvider(config);
-  configApi.setGlobalConfigProvider(configProvider);
-  registerInstrumentations({
-    instrumentations: resolveInstrumentations(sdkOptions, configProvider),
-  });
-
   let components: SDKComponents;
   try {
     components = create(config, sdkOptions);
@@ -103,6 +93,9 @@ export function startNodeSDK(sdkOptions?: SDKOptions): {
   }
   if (components.contextManager) {
     context.setGlobalContextManager(components.contextManager);
+  }
+  if (components.configProvider) {
+    configApi.setGlobalConfigProvider(components.configProvider);
   }
   if (components.loggerProvider) {
     logs.setGlobalLoggerProvider(components.loggerProvider);
@@ -116,6 +109,10 @@ export function startNodeSDK(sdkOptions?: SDKOptions): {
   if (components.propagator) {
     propagation.setGlobalPropagator(components.propagator);
   }
+
+  registerInstrumentations({
+    instrumentations: sdkOptions?.instrumentations?.flat() ?? [],
+  });
 
   const shutdownFn = async () => {
     const promises: Promise<unknown>[] = [];
@@ -131,45 +128,6 @@ export function startNodeSDK(sdkOptions?: SDKOptions): {
     await Promise.all(promises);
   };
   return { shutdown: shutdownFn };
-}
-
-/**
- * Resolve the instrumentations to register.
- *
- * `instrumentations` (pre-built instances) and `instrumentationRegistry`
- * (factories) are mutually exclusive. Instances are the legacy, in-code-only
- * path. The registry lets the SDK construct each instrumentation after the
- * ConfigProvider is set, so it reads its declarative config in its constructor;
- * instrumentations disabled in config are skipped and never constructed.
- */
-function resolveInstrumentations(
-  sdkOptions: SDKOptions | undefined,
-  configProvider: ConfigProvider
-): Instrumentation[] {
-  const registry = sdkOptions?.instrumentationRegistry;
-  const instrumentations = sdkOptions?.instrumentations;
-
-  if (registry && instrumentations) {
-    throw new Error(
-      'startNodeSDK: pass either `instrumentations` or `instrumentationRegistry`, not both'
-    );
-  }
-
-  if (registry) {
-    const resolved: Instrumentation[] = [];
-    for (const [name, create] of Object.entries(registry)) {
-      if (
-        configProvider.getInstrumentationConfig(name).getBoolean('enabled') ===
-        false
-      ) {
-        continue;
-      }
-      resolved.push(create());
-    }
-    return resolved;
-  }
-
-  return instrumentations?.flat() ?? [];
 }
 
 /**
@@ -195,6 +153,8 @@ function create(
     if (propagator) {
       components.propagator = propagator;
     }
+
+    components.configProvider = createConfigProvider(config);
 
     if (config.logger_provider) {
       components.loggerProvider = createLoggerProviderFromConfig(
